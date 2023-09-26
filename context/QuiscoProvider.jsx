@@ -107,7 +107,6 @@ const QuioscoProvider = ({children}) => {
         }
     }
 
-
     return(
         paginaLista ? <QuioscoContext.Provider
             value={{

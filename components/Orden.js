@@ -1,11 +1,12 @@
 import Image from "next/image"
 import axios from 'axios'
 import { toast } from 'react-toastify'
-import { formatearDinero } from "../helpers"
-
+import { formatearDinero, formatearFecha } from "../helpers"
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 
 export default function Orden({orden}) {
-  const { id, nombre, total, pedido } = orden
+  const { id, nombre, total, pedido, fecha, estado } = orden
     
     const completarOrden = async () => {
         try {
@@ -16,10 +17,45 @@ export default function Orden({orden}) {
         }
     }
 
+    const MySwal = withReactContent(Swal)
+
+    const mostrarConfirmacion = () => {
+      MySwal.fire({
+        title: '¿Realmente quieres eliminar la orden?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          eliminarOrden()
+        }
+      })
+    }
+    
+    const eliminarOrden = async () => {
+        try{
+            await axios.delete(`/api/ordenes/${id}`)
+            MySwal.fire({
+              title: 'Orden eliminada',
+              icon: 'success',
+              text: 'La orden ha sido eliminada correctamente'
+            })
+        }catch(error){
+            MySwal.fire({
+              title: 'Error',
+              icon: 'error',
+              text: 'Hubo un problema al eliminar la orden'
+            })
+        }
+    }
+    
+
   return (
     <div className="border p-10 space-y-5">
       <h3 className="text-2xl font-bold">Orden: {id}</h3>
       <p className="text-lg font-bold">Cliente: {nombre}</p>
+      <p className="text-base font-medium">Fecha: {formatearFecha(fecha)}</p>
 
       <div>
         {pedido.map(platillo => (
@@ -43,14 +79,22 @@ export default function Orden({orden}) {
             <p className="mt-5 font-black text-4xl text-amber-500">
                 <span className="text-gray-900">Total a pagar:</span> {formatearDinero(total)} 
             </p>
+            
+                <button
+                    className="bg-red-600 hover:bg-red-800 text-white mt-5 md:mt-0 py-3 px-10 uppercase font-bold rounded-lg"
+                    type="button"
+                    onClick={mostrarConfirmacion}
+                >
+                    Eliminar Orden
+                </button>
+                {!estado &&<button
+                    className="bg-indigo-600 hover:bg-indigo-800 text-white mt-5 md:mt-0 py-3 px-10 uppercase font-bold rounded-lg"
+                    type="button"
+                    onClick={completarOrden}
+                >
+                    Completar Orden
+                </button> }
 
-            <button
-                className="bg-indigo-600 hover:bg-indigo-800 text-white mt-5 md:mt-0 py-3 px-10 uppercase font-bold rounded-lg"
-                type="button"
-                onClick={completarOrden}
-            >
-                Completar Orden
-            </button>
       </div>
     </div>
 

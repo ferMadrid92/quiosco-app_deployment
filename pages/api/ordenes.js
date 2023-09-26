@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     const prisma = new PrismaClient()
     // Obtener ordenes
     if (req.method === 'GET') {
-        // Obetener Ordenes
+        // Obtener Ordenes
         const ordenes = await prisma.orden.findMany({
           where: {
             estado: false
